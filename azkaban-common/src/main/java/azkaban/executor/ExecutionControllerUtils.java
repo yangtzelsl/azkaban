@@ -114,15 +114,18 @@ public class ExecutionControllerUtils {
   public static void alertUserOnFlowFinished(final ExecutableFlow flow, final AlerterHolder
       alerterHolder, final String[] extraReasons) {
     final ExecutionOptions options = flow.getExecutionOptions();
+    // 获取默认的email插件
     final Alerter mailAlerter = alerterHolder.get("email");
     if (flow.getStatus() != Status.SUCCEEDED) {
       if (options.getFailureEmails() != null && !options.getFailureEmails().isEmpty()) {
         try {
+          // 调用默认邮箱插件
           mailAlerter.alertOnError(flow, extraReasons);
         } catch (final Exception e) {
           logger.error("Failed to alert on error for execution " + flow.getExecutionId(), e);
         }
       }
+      // 调用自定义插件
       if (options.getFlowParameters().containsKey("alert.type")) {
         final String alertType = options.getFlowParameters().get("alert.type");
         final Alerter alerter = alerterHolder.get(alertType);
@@ -147,6 +150,7 @@ public class ExecutionControllerUtils {
       }
       if (options.getFlowParameters().containsKey("alert.type")) {
         final String alertType = options.getFlowParameters().get("alert.type");
+        // 根据 azkaban web 页面上输入alert.type的值获取自定义插件
         final Alerter alerter = alerterHolder.get(alertType);
         if (alerter != null) {
           try {

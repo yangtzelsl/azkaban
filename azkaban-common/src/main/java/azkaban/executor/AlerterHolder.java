@@ -56,11 +56,14 @@ public class AlerterHolder {
     // load all plugin alerters
     final String pluginDir = props.getString("alerter.plugin.dir", "plugins/alerter");
     allAlerters.putAll(loadPluginAlerters(pluginDir));
+    logger.info("所有加载的插件: " + allAlerters);
     return allAlerters;
   }
 
   private Map<String, Alerter> loadPluginAlerters(final String pluginPath) {
     final File alerterPluginPath = new File(pluginPath);
+    logger.info("插件的文件目录: "+ alerterPluginPath + "   " + alerterPluginPath.exists() );
+    logger.info("插件目录是否存在: "+ alerterPluginPath.exists() );
     if (!alerterPluginPath.exists()) {
       return Collections.<String, Alerter>emptyMap();
     }
@@ -69,8 +72,10 @@ public class AlerterHolder {
     final ClassLoader parentLoader = getClass().getClassLoader();
     final File[] pluginDirs = alerterPluginPath.listFiles();
     final ArrayList<String> jarPaths = new ArrayList<>();
+    logger.info("插件目录的数量: " + pluginDirs.length);
 
     for (final File pluginDir : pluginDirs) {
+      logger.info("插件的目录: " + pluginDir.getPath());
       // load plugin properties
       final Props pluginProps = PropsUtils.loadPluginProps(pluginDir);
       if (pluginProps == null) {
@@ -78,6 +83,7 @@ public class AlerterHolder {
       }
 
       final String pluginName = pluginProps.getString("alerter.name");
+      logger.info("插件名称: " + pluginName);
       final List<String> extLibClassPaths =
           pluginProps.getStringList("alerter.external.classpaths",
               (List<String>) null);
@@ -125,10 +131,12 @@ public class AlerterHolder {
       installedAlerterPlugins.put(pluginName, plugin);
     }
 
+    logger.info("所有自定义插件: "+ installedAlerterPlugins);
     return installedAlerterPlugins;
   }
 
   public Alerter get(final String alerterType) {
+    logger.info("插件内容:  "+ this.alerters);
     return this.alerters.get(alerterType);
   }
 }
