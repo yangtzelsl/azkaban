@@ -64,6 +64,16 @@ public class SlaOption {
   final private Set<SlaAction> actions;
   final private ImmutableList<String> emails;
 
+  private int execId;
+
+  public void setExecId(int execId) {
+    this.execId = execId;
+  }
+
+  public int getExecId() {
+    return execId;
+  }
+
   /**
    * Constructor.
    *

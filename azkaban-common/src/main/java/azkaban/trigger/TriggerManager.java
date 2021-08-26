@@ -339,8 +339,11 @@ public class TriggerManager extends EventHandler implements
              */
             if (t.getExpireCondition().getExpression().contains("EndTimeChecker") && t
                 .expireConditionMet()) {
+              logger.info("t.getExpireCondition().getExpression(): "+t.getExpireCondition().getExpression());
+              logger.info("t.expireConditionMet(): "+t.expireConditionMet());
               onTriggerPause(t);
             } else if (t.triggerConditionMet()) {
+              logger.info("t.triggerConditionMet(): "+t.triggerConditionMet());
               onTriggerTrigger(t);
             }
           }
@@ -358,6 +361,7 @@ public class TriggerManager extends EventHandler implements
 
     private void onTriggerTrigger(final Trigger t) throws TriggerManagerException {
       final List<TriggerAction> actions = t.getTriggerActions();
+      logger.info("actions: "+actions);
       for (final TriggerAction action : actions) {
         try {
           logger.info("Doing trigger actions " + action.getDescription() + " for " + t);
@@ -391,6 +395,7 @@ public class TriggerManager extends EventHandler implements
 
     private void onTriggerPause(final Trigger t) throws TriggerManagerException {
       final List<TriggerAction> expireActions = t.getExpireActions();
+      logger.info("expireActions: "+expireActions);
       for (final TriggerAction action : expireActions) {
         try {
           logger.info("Doing expire actions for " + action.getDescription() + " for " + t);

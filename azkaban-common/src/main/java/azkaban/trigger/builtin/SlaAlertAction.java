@@ -20,12 +20,15 @@ import azkaban.ServiceProvider;
 import azkaban.alert.Alerter;
 import azkaban.executor.AlerterHolder;
 import azkaban.executor.ExecutableFlow;
+import azkaban.executor.ExecutionOptions;
 import azkaban.executor.ExecutorLoader;
 import azkaban.sla.SlaOption;
 import azkaban.trigger.TriggerAction;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
 public class SlaAlertAction implements TriggerAction {
@@ -103,10 +106,26 @@ public class SlaAlertAction implements TriggerAction {
   public void doAction() throws Exception {
     logger.info("Alerting on sla failure.");
     if (slaOption.hasAlert()) {
-      final Alerter alerter = this.alerters.get(SlaOption.ALERT_TYPE_EMAIL);
+      // 先加载默认插件email
+      Alerter alerter = this.alerters.get(SlaOption.ALERT_TYPE_EMAIL);
+      logger.info("alerter: "+alerter.toString());
+      //再获取自定义的sla插件
+      final ExecutableFlow flow = this.executorLoader.fetchExecutableFlow(this.execId);
+      slaOption.setExecId(this.execId);
+      final ExecutionOptions options = flow.getExecutionOptions();
+      final String alertType = options.getFlowParameters().get("alert.type");
+      logger.info("查看sla中的alertType：" + alertType);
+
+      if(StringUtils.isNotBlank(alertType)){
+        alerter = this.alerters.get(alertType);
+      }
+
       if (alerter != null) {
         try {
-          final ExecutableFlow flow = this.executorLoader.fetchExecutableFlow(this.execId);
+          // final ExecutableFlow flow = this.executorLoader.fetchExecutableFlow(this.execId);
+          logger.info("SLA 自定义插件：" + alerter.toString());
+          logger.info("SLA 发送的内容: " + slaOption.createSlaMessage(flow));
+          // 没有配置自定义alert.type前，这里走的一直是email
           alerter.alertOnSla(this.slaOption, slaOption.createSlaMessage(flow));
         } catch (final Exception e) {
           e.printStackTrace();
